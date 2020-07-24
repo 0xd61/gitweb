@@ -11,7 +11,7 @@ After 30 seconds (the next check loop) we create a backup of the new repo.
 
 To preserve repos during container restarts create a volume mapping to the `/git` folder
 ```
-cp env.exaple env
+cp env.example env
 vi env
 
 docker run --rm -it -v $(pwd)/env:/.env -p 30080:80 -p 30022:22  kaitsh/gitweb
@@ -41,7 +41,7 @@ to create a new container.
 
 ## TODOs
 
-- [ ] HTTPS Support (must be manually enabled in `service.sh`
+- [ ] HTTPS Support (must be manually enabled in `service.sh`)
 - [ ] Better config
 - [ ] Error handling
 - [ ] Docker healthcheck
