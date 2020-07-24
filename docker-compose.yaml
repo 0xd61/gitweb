@@ -1,0 +1,13 @@
+version: '2.0'
+services:
+  web:
+    image: kaitsh/gitweb
+    ports:
+    - "30080:80"
+    - "30022:22"
+    volumes:
+    - ./env:/.env
+    - repos:/git
+
+volumes:
+  repos: {}
