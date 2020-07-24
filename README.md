@@ -43,3 +43,5 @@ to create a new container.
 
 - [ ] HTTPS Support (must be manually enabled in `service.sh`
 - [ ] Better config
+- [ ] Error handling
+- [ ] Docker healthcheck
