@@ -8,4 +8,5 @@ RUN    sed -i 's/#UseDNS no/UseDNS no/' /etc/ssh/sshd_config \
 
 COPY service.sh /service.sh
 COPY sync.sh /sync.sh
+COPY init.template /init.template
 CMD ["/service.sh"]

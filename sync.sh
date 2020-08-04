@@ -19,7 +19,27 @@ for REPO in ${REPOS}; do
     su "$USER" -c "git bundle create ../${BASE}.bundle --all && rsync -IazPr ../${BASE}.bundle ${REPO}.bundle"
   else
     echo "cloning $REPO"
-    su "$USER" -c "rsync -IazPr ${REPO}.bundle ${BASE}.bundle && git clone --mirror ${BASE}.bundle $BASE || git init --bare $BASE"
+    su "$USER" -c "rsync -IazPr ${REPO}.bundle ${BASE}.bundle"
+    if [ "$?" -eq 0 ]; then
+      su "$USER" -c "git clone --mirror ${BASE}.bundle $BASE"
+    else
+      ##########################################
+      # Create empty repo without init script #
+      ##########################################
+      #su "$USER" -c "git init --bare ${BASE}"
+
+      ##########################################
+      # Create repo and initialize init script #
+      ##########################################
+      su "$USER" -c "git init ${BASE}_temp \
+                    && cp /init.template ${BASE}/init.sh \
+                    && chmod +x ${BASE}/init.sh \
+                    && git config user.name GitWeb \
+                    && git config user.email gitweb@localhost \
+                    && git commit -m 'Initial commit' \
+                    && git clone --mirror ${BASE}_temp $BASE \
+                    && rm -rf ${BASE}_temp"
+    fi
   fi
 done
 

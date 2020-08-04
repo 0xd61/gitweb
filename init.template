@@ -1,0 +1,63 @@
+#!/usr/bin/env sh
+
+BASE=$(dirname "$0")
+
+# exit on errors
+set -e
+
+###################
+# Pre-Commit Hook #
+###################
+# NOTE(dgl): This creates a new pre-commit.d directory which will contain all pre-commit scripts.
+# The pre-commit hook calls every script inside the pre-commi.d directory
+mkdir ${BASE}/.git/hooks/pre-commit.d/
+cat <<-'EOF' > ${BASE}/.git/hooks/pre-commit
+#!/bin/bash
+
+cd "$(dirname "$0")/pre-commit.d"
+
+for hook in *; do
+    bash $hook
+    RESULT=$?
+    if [ $RESULT != 0 ]; then
+        echo "pre-commit.d/$hook returned non-zero: $RESULT, abort commit"
+        exit $RESULT
+    fi
+done
+
+exit 0
+EOF
+chmod +x ${BASE}/.git/hooks/pre-commit
+
+####################
+# No-Commit Script #
+####################
+# NOTE(dgl): This script ignores lines that are marked with 'nocommit' or 'no-commit'
+cat <<-'EOF' > ${BASE}/.git/hooks/pre-commit.d/no-commit.sh
+#!/bin/bash
+# Base script from: https://stackoverflow.com/questions/16244969/how-to-tell-git-to-ignore-individual-lines-i-e-gitignore-for-specific-lines-of
+# This hook will look for code comments marked 'no-commit'
+#    - case-insensitive
+#    - dash is optional
+#
+noCommitCount=$(git diff --no-ext-diff --cached | egrep -i --count "(@No|no[ -]?)commit")
+if [ "$noCommitCount" -ne "0" ]; then
+   echo "WARNING: You are attempting to commit changes which include a 'no-commit'."
+   echo "Please check the following files:"
+   git diff --no-ext-diff --cached --name-only -i -G"(@no|\/\/s?no-?)commit" | sed 's/^/   - /'
+   echo
+   echo "You can ignore this warning by running the commit command with '--no-verify'"
+   exit 1
+fi
+EOF
+chmod +x ${BASE}/.git/hooks/pre-commit.d/no-commit.sh
+
+###########
+# Cleanup #
+###########
+read -p "Confirm if you want to cleanup the initial commit and init script and start with an empty repository? [yN] " answer
+if [ "$answer" != "${answer#[Yy]}" ] ;then
+    git reset --hard HEAD~1
+    git push origin +master
+    rm -f $0
+fi
