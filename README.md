@@ -25,6 +25,12 @@ git clone ssh://git@localhost:30022/git/repo1.git
 git clone http://localhost:30080/repo1.git
 ```
 
+Run the init script
+```
+cd repo1
+./init.sh
+```
+
 ## Init Script
 
 Every new repo contains an initial commit with a `init.sh` script. This script is a setup script
