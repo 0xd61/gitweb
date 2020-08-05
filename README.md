@@ -29,7 +29,7 @@ git clone http://localhost:30080/repo1.git
 
 Every new repo contains an initial commit with a `init.sh` script. This script is a setup script
 for `git config` and `git hooks`. The script can be changed in `init.template`. If you want your new repositories
-to be empty, remote the "initial commit" command in `sync.sh`.
+to be empty, remove the "initial commit" command in `sync.sh`.
 
 By default `init.sh` configures the `git config user.name`, `git config user.email` and creates a `pre-commit`-hook and
 `pre-commit.d`-hook directory. This directory contains all pre-commit hook scripts. The hook itself is a wrapper which calls all
@@ -55,4 +55,4 @@ to create a new container.
 - [ ] HTTPS Support (must be manually enabled in `service.sh`)
 - [ ] Better config
 - [ ] Error handling
-- [ ] Docker healthcheck
+
