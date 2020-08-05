@@ -32,11 +32,14 @@ for REPO in ${REPOS}; do
       # Create repo and initialize init script #
       ##########################################
       su "$USER" -c "git init ${BASE}_temp \
-                    && cp /init.template ${BASE}/init.sh \
-                    && chmod +x ${BASE}/init.sh \
+                    && cp /init.template ${BASE}_temp/init.sh \
+                    && chmod +x ${BASE}_temp/init.sh \
+                    && cd ${BASE}_temp \
                     && git config user.name GitWeb \
                     && git config user.email gitweb@localhost \
+                    && git add --all \
                     && git commit -m 'Initial commit' \
+                    && cd - \
                     && git clone --mirror ${BASE}_temp $BASE \
                     && rm -rf ${BASE}_temp"
     fi
