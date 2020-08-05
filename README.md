@@ -25,6 +25,17 @@ git clone ssh://git@localhost:30022/git/repo1.git
 git clone http://localhost:30080/repo1.git
 ```
 
+## Init Script
+
+Every new repo contains an initial commit with a `init.sh` script. This script is a setup script
+for `git config` and `git hooks`. The script can be changed in `init.template`. If you want your new repositories
+to be empty, remote the "initial commit" command in `sync.sh`.
+
+By default `init.sh` configures the `git config user.name`, `git config user.email` and creates a `pre-commit`-hook and
+`pre-commit.d`-hook directory. This directory contains all pre-commit hook scripts. The hook itself is a wrapper which calls all
+scripts inside the hook directory. To support other hooks, simply copy the wrapper script and create a new hook directory.
+By default only the `no-commit.sh` script is active. This script prevents a commit, if the changes contain a `no-commit`.
+
 ## Build a custom container
 
 You probably only need to make changes to `service.sh` or `sync.sh`.
