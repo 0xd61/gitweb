@@ -1,6 +1,8 @@
 # gitweb
 Minimal git server with gitweb and rsync backup in a Docker container
 
+[![docker](https://img.shields.io/docker/cloud/build/kaitsh/gitweb)](https://hub.docker.com/repository/docker/kaitsh/gitweb)
+
 ## Getting started
 
 Copy the env.example file and edit the variables. This config is mounted into the container.
