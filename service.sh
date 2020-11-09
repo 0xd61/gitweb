@@ -6,7 +6,7 @@ GITWEB_CONF=/etc/gitweb.conf
 SERVER_DIR=/git
 SYNC_SCRIPT=/sync.sh
 
-. $env
+. /.env
 
 # ---- Setup git ----
 id -u $USER  &>/dev/null || adduser $USER -D
@@ -120,9 +120,6 @@ $SYNC_SCRIPT
 # if it detects that either of the processes has exited.
 # Otherwise it loops forever, waking up every 60 seconds
 while sleep 30; do
-  # reload env for updating without restart
-  . $env
-
   ps aux |grep sshd |grep -q -v grep
   SSHD_STATUS=$?
   ps aux |grep fcgiwrap |grep -q -v grep
