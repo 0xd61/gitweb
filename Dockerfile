@@ -6,6 +6,9 @@ RUN    sed -i 's/#UseDNS no/UseDNS no/' /etc/ssh/sshd_config \
     && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
     && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
+
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
+
 COPY service.sh /service.sh
 COPY sync.sh /sync.sh
 COPY init.template /init.template
