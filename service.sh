@@ -44,10 +44,10 @@ EOC
 #cat $APACHE_CONFIG_DIR/gitServer.xml >> $APACHE_CONFIG_DIR/conf/httpd.conf
 #sed -i '/LoadModule alias_module modules\/mod_alias.so/aLoadModule cgi_module modules/mod_cgi.so' $APACHE_CONFIG_DIR/conf/httpd.conf
 
-cat << EOF > /etc/gitweb.conf
+cat << EOF > $GITWEB_CONF
 \$projectroot = '$SERVER_DIR';
-$feature{'blame'}{'default'} = [1];
-$feature{'highlight'}{'default'} = [1];
+\$feature{'blame'}{'default'} = [1];
+\$feature{'highlight'}{'default'} = [1];
 EOF
 
 mv $NGINX_CONF $NGINX_CONF.original
