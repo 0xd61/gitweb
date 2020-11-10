@@ -1,7 +1,7 @@
 FROM nginx:mainline-alpine-perl
 RUN    apk update \
     && apk upgrade \
-    && apk add git git-gitweb git-daemon openssh fcgiwrap perl-cgi spawn-fcgi rsync
+    && apk add git git-gitweb git-daemon openssh fcgiwrap perl-cgi spawn-fcgi rsync highlight
 RUN    sed -i 's/#UseDNS no/UseDNS no/' /etc/ssh/sshd_config \
     && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
     && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config

@@ -46,6 +46,8 @@ EOC
 
 cat << EOF > /etc/gitweb.conf
 \$projectroot = '$SERVER_DIR';
+$feature{'blame'}{'default'} = [1];
+$feature{'highlight'}{'default'} = [1];
 EOF
 
 mv $NGINX_CONF $NGINX_CONF.original
