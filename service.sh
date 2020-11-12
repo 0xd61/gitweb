@@ -29,17 +29,14 @@ Host *
   StrictHostKeyChecking no
 EOF
 
-
-
 chmod 600 /home/$USER/.ssh/id_rsa
 chmod 600 /home/$USER/.ssh/authorized_keys
 chmod 600 /home/$USER/.htpasswd
 
 EOC
 
-# TODO(dgl): We get a file permission error while cloning via http. I don't know why it uses the root config
-# TODO(dgl): chown did not work...
-#chown -R git:www-data /root/.config/git
+# TODO(dgl): fix remote: warning: unable to access '/root/.config/git/attributes': Permission denied
+# on git clone via http
 
 #cat $APACHE_CONFIG_DIR/gitServer.xml >> $APACHE_CONFIG_DIR/conf/httpd.conf
 #sed -i '/LoadModule alias_module modules\/mod_alias.so/aLoadModule cgi_module modules/mod_cgi.so' $APACHE_CONFIG_DIR/conf/httpd.conf
@@ -75,11 +72,8 @@ server {
     #ssl_prefer_server_ciphers on;
     #ssl_ciphers               'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
 
-    # Remove auth_* if you don't want HTTP Basic Auth
-
     # static repo files for cloning over http
     location ~ ^.*\.git/objects/([0-9a-f]+/[0-9a-f]+|pack/pack-[0-9a-f]+.(pack|idx))$ {
-        limit_except GET { auth_basic off; }
         auth_basic "Resticted Git";
         auth_basic_user_file /home/$USER/.htpasswd;
         root $SERVER_DIR;
@@ -87,7 +81,6 @@ server {
 
     # requests that need to go to git-http-backend
     location ~ ^.*\.git/(HEAD|info/refs|objects/info/.*|git-(upload|receive)-pack)$ {
-        limit_except GET { auth_basic off; }
         auth_basic "Resticted Git";
         auth_basic_user_file /home/$USER/.htpasswd;
         root $SERVER_DIR;
@@ -104,9 +97,9 @@ server {
     # Remove all conf beyond if you don't want Gitweb
     try_files \$uri @gitweb;
     location @gitweb {
-        limit_except GET { auth_basic off; }
-        auth_basic "Resticted Git";
-        auth_basic_user_file /home/$USER/.htpasswd;
+        #auth_basic "Resticted Git";
+        #auth_basic_user_file /home/$USER/.htpasswd;
+
         fastcgi_pass  unix:/var/run/fcgiwrap/fcgiwrap.sock;
         fastcgi_param SCRIPT_FILENAME   /usr/share/gitweb/gitweb.cgi;
         fastcgi_param PATH_INFO         \$uri;
@@ -116,8 +109,8 @@ server {
 }
 EOF
 
-sed -i 's/user  nginx;/user git www-data;/' /etc/nginx/nginx.conf
-chown -R git:www-data /usr/share/gitweb
+sed -i "s/user  nginx;/user $USER www-data;/" /etc/nginx/nginx.conf
+chown -R $USER:www-data /usr/share/gitweb
 
 # Start sshd
 ssh-keygen -A
