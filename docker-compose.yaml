@@ -1,13 +1,15 @@
-version: '2.0'
+version: '3.0'
 services:
   web:
-    image: kaitsh/gitweb
+    image: local/gitweb
     ports:
-    - "30080:80"
-    - "30022:22"
+      - "30080:80"
+      - "30022:22"
     volumes:
-    - ./env:/.env
-    - repos:/git
+      - ./env:/.env
+      - repos:/git
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   repos: {}
