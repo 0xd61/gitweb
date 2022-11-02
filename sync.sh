@@ -1,6 +1,7 @@
 ENV="/.env"
 USER=git
-SERVER_DIR=/git
+SERVER_ROOT=/jail
+SERVER_DIR=${SERVER_ROOT}/git
 
 . /.env
 
@@ -35,6 +36,7 @@ for REPO in ${REPOS}; do
                     && cp /init.template ${BASE}_temp/init.sh \
                     && chmod +x ${BASE}_temp/init.sh \
                     && cd ${BASE}_temp \
+                    && echo ${BASE} Repository > .git/description \
                     && git config user.name GitWeb \
                     && git config user.email gitweb@localhost \
                     && git add --all \

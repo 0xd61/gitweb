@@ -3,7 +3,9 @@ USER=git
 ENV=/.env
 NGINX_CONF=/etc/nginx/conf.d/default.conf
 GITWEB_CONF=/etc/gitweb.conf
-SERVER_DIR=/git
+SSHD_CONF=/etc/ssh/sshd_config
+SERVER_ROOT=/jail
+SERVER_DIR=${SERVER_ROOT}/git
 SYNC_SCRIPT=/sync.sh
 
 # TODO(dgl): to load config on each loop
@@ -32,8 +34,28 @@ EOF
 chmod 600 /home/$USER/.ssh/id_rsa
 chmod 600 /home/$USER/.ssh/authorized_keys
 chmod 600 /home/$USER/.htpasswd
-
 EOC
+
+# ---- Setup chroot for git ----
+mkdir -p                      $SERVER_ROOT/dev
+mkdir -p                      $SERVER_ROOT/lib
+mkdir -p                      $SERVER_ROOT/bin
+mkdir -p                      $SERVER_ROOT/proc
+mkdir -p                      $SERVER_ROOT/usr/bin
+mkdir -p                      $SERVER_ROOT/usr/lib
+mknod -m 666                  $SERVER_ROOT/dev/null c 1 3
+mknod -m 444                  $SERVER_ROOT/dev/random c 1 8
+mknod -m 444                  $SERVER_ROOT/dev/urandom c 1 9
+cp /bin/busybox               $SERVER_ROOT/bin
+cp /usr/bin/git               $SERVER_ROOT/usr/bin
+cp /usr/bin/git-receive-pack  $SERVER_ROOT/usr/bin
+cp /usr/bin/git-upload-pack   $SERVER_ROOT/usr/bin
+cp /usr/bin/git-receive-pack  $SERVER_ROOT/usr/bin
+cp /lib/ld-musl*              $SERVER_ROOT/lib
+cp /usr/lib/libpcre2*         $SERVER_ROOT/usr/lib
+cp /lib/libz*                 $SERVER_ROOT/lib
+ln $SERVER_ROOT/bin/busybox   $SERVER_ROOT/bin/ash
+mount -t proc proc            $SERVER_ROOT/proc
 
 # TODO(dgl): fix remote: warning: unable to access '/root/.config/git/attributes': Permission denied
 # on git clone via http
@@ -113,6 +135,28 @@ sed -i "s/user  nginx;/user $USER www-data;/" /etc/nginx/nginx.conf
 chown -R $USER:www-data /usr/share/gitweb
 
 # Start sshd
+mv $SSHD_CONF $SSHD_CONF.original
+cat << EOF > $SSHD_CONF
+#	$OpenBSD: sshd_config,v 1.104 2021/07/02 05:11:21 dtucker Exp $
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+# This sshd was compiled with PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+PubkeyAuthentication yes
+
+# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+# but this is overridden so installations will only check .ssh/authorized_keys
+AuthorizedKeysFile	.ssh/authorized_keys
+PasswordAuthentication no
+AllowTcpForwarding no
+GatewayPorts no
+X11Forwarding no
+UseDNS no
+ChrootDirectory $SERVER_ROOT
+EOF
+
 ssh-keygen -A
 /usr/sbin/sshd -f /etc/ssh/sshd_config
 status=$?
@@ -157,6 +201,21 @@ while sleep 30; do
   if [ $SSHD_STATUS -ne 0 -o $FGCIWRAP_STATUS -ne 0 -o $NGINX_STATUS -ne 0 ]; then
     echo "One of the processes has already exited."
     exit 1
+  fi
+
+  if [ -n "${ZEROTIER_ID}" ]; then
+    # Check if zerotier is running, otherwise connect
+    if zerotier-cli info; then
+      if zerotier-cli listnetworks | grep $ZEROTIER_ID; then
+          echo "Still connected to $ZEROTIER_ID all good"
+      else
+          zerotier-cli join $ZEROTIER_ID
+      fi
+    else
+      zerotier-one -d
+      sleep 10
+      zerotier-cli join $ZEROTIER_ID
+    fi
   fi
 
   # Running the script for syncing or backup the repos

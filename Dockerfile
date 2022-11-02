@@ -1,7 +1,30 @@
-FROM nginx:mainline-alpine-perl
+ARG BASE_IMAGE=nginx:mainline-alpine
+ARG MAKE_THREADS=8
+FROM ${BASE_IMAGE} AS zerotier_builder
+
+
+RUN apk add --update alpine-sdk linux-headers openssl-dev curl gcc libgcc musl-dev openssl openssl-dev
+
+RUN curl -sSL sh.rustup.rs >/usr/local/bin/rustup-dl && chmod +x /usr/local/bin/rustup-dl && /usr/local/bin/rustup-dl -y --default-toolchain stable
+
+RUN git clone --quiet https://github.com/zerotier/ZeroTierOne.git /src \
+  && cd /src \
+  && make -j ${MAKE_THREADS} -f make-linux.mk
+
+FROM ${BASE_IMAGE}-perl
+
+COPY --from=zerotier_builder /src/zerotier-one /usr/sbin/
+
+RUN    apk add --no-cache --purge --clean-protected libc6-compat libstdc++ \
+    && mkdir -p /var/lib/zerotier-one \
+    && ln -s /usr/sbin/zerotier-one /usr/sbin/zerotier-idtool \
+    && ln -s /usr/sbin/zerotier-one /usr/sbin/zerotier-cli
+
 RUN    apk update \
     && apk upgrade \
-    && apk add git git-gitweb git-daemon openssh fcgiwrap perl-cgi spawn-fcgi rsync highlight
+    && apk add git git-gitweb git-daemon openssh fcgiwrap perl-cgi spawn-fcgi rsync highlight \
+    && rm -rf /var/cache/apk/*
+
 RUN    sed -i 's/#UseDNS no/UseDNS no/' /etc/ssh/sshd_config \
     && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
     && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config

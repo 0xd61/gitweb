@@ -1,15 +1,18 @@
 version: '3.0'
 services:
   web:
-    image: local/gitweb
+    privileged: true
+    image: kaitsh/gitweb
     ports:
       - "30080:80"
       - "30022:22"
     volumes:
       - ./env:/.env
       - repos:/git
+      - zerotier:/var/lib/zerotier-one
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
 volumes:
   repos: {}
+  zerotier: {}

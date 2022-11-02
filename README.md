@@ -11,12 +11,14 @@ The Backup is done via git bundle files. If a bundle exists at the backup locati
 we copy it to the server and clone the repo. If not, we create a new repo.
 After 30 seconds (the next check loop) we create a backup of the new repo.
 
-To preserve repos during container restarts create a volume mapping to the `/git` folder
+To preserve repos and/or the zerotier config during container restarts create a volume mapping to the `/git/repos` or `/var/lib/zerotier-one` folder.
+
+Zerotier additionally needs the ability to create tun/tap devices which can be enabled with `--cap-add=NET_ADMIN --cap-add=SYS_ADMIN --device=/dev/net/tun`
 ```
 cp env.example env
 vi env
 
-docker run --rm -it -v $(pwd)/env:/.env -p 30080:80 -p 30022:22  kaitsh/gitweb
+docker run --rm -it -v $(pwd)/env:/.env:ro -p 30080:80 -p 30022:22  kaitsh/gitweb
 ```
 
 Clone a repo with ssh or http
@@ -26,6 +28,8 @@ git clone ssh://git@localhost:30022/git/repo1.git
 
 git clone http://localhost:30080/repo1.git
 ```
+
+_NOTE:_ http is currently disabled. Please only use ssh.
 
 Run the init script
 ```
