@@ -189,7 +189,7 @@ $SYNC_SCRIPT
 # more than one service in a container. The container exits with an error
 # if it detects that either of the processes has exited.
 # Otherwise it loops forever, waking up every 60 seconds
-while sleep 30; do
+while sleep 60; do
   ps aux |grep sshd |grep -q -v grep
   SSHD_STATUS=$?
   ps aux |grep fcgiwrap |grep -q -v grep

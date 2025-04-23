@@ -32,7 +32,7 @@ for REPO in ${REPOS}; do
       ##########################################
       # Create repo and initialize init script #
       ##########################################
-      su "$USER" -c "git init ${BASE}_temp \
+      su "$USER" -c "git init -b main ${BASE}_temp \
                     && cp /init.template ${BASE}_temp/init.sh \
                     && chmod +x ${BASE}_temp/init.sh \
                     && cd ${BASE}_temp \
