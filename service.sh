@@ -53,8 +53,9 @@ cp /usr/bin/git-upload-pack   $SERVER_ROOT/usr/bin
 cp /usr/bin/git-receive-pack  $SERVER_ROOT/usr/bin
 cp /lib/ld-musl*              $SERVER_ROOT/lib
 cp /usr/lib/libpcre2*         $SERVER_ROOT/usr/lib
-cp /lib/libz*                 $SERVER_ROOT/lib
+cp /usr/lib/libz*                 $SERVER_ROOT/lib
 ln $SERVER_ROOT/bin/busybox   $SERVER_ROOT/bin/ash
+ln $SERVER_ROOT/bin/busybox   $SERVER_ROOT/bin/sh
 mount -t proc proc            $SERVER_ROOT/proc
 
 # TODO(dgl): fix remote: warning: unable to access '/root/.config/git/attributes': Permission denied
