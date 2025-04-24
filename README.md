@@ -19,6 +19,8 @@ cp env.example env
 vi env
 
 docker run --rm -it -v $(pwd)/env:/.env:ro -p 30080:80 -p 30022:22  kaitsh/gitweb
+
+docker run --restart=always --name gitweb -d --cap-add=NET_ADMIN --cap-add=SYS_ADMIN --device=/dev/net/tun --add-host=host.docker.internal:host-gateway -v zerotier:/var/lib/zerotier-one -v repos:/git -v $(pwd)/env:/.env kaitsh/gitweb
 ```
 
 Clone a repo with ssh or http
