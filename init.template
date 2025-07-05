@@ -10,39 +10,39 @@ set -e
 ###################
 # NOTE(dgl): This creates a new pre-commit.d directory which will contain all pre-commit scripts.
 # The pre-commit hook calls every script inside the pre-commi.d directory
-mkdir ${BASE}/.git/hooks/pre-commit.d/
-cat <<-'EOF' > ${BASE}/.git/hooks/pre-commit
-#!/usr/bin/env sh
+# mkdir ${BASE}/.git/hooks/pre-commit.d/
+# cat <<-'EOF' > ${BASE}/.git/hooks/pre-commit
+# #!/usr/bin/env sh
 
-DIR=$(dirname "$0")
-HOOK_NAME=$(basename "$0")
+# DIR=$(dirname "$0")
+# HOOK_NAME=$(basename "$0")
 
-HOOK_DIR="${DIR}/${HOOK_NAME}.d"
+# HOOK_DIR="${DIR}/${HOOK_NAME}.d"
 
-if [ -d $HOOK_DIR ]; then
-  STDIN=$(cat /dev/stdin)
+# if [ -d $HOOK_DIR ]; then
+#   STDIN=$(cat /dev/stdin)
 
-  echo "###### Running Hooks ######"
-  echo "You can skip hooks by running the commit command with '--no-verify'"
-  for HOOK in ${HOOK_DIR}/*; do
-    echo "$HOOK_NAME - $HOOK"
-    echo
-    echo "$STDIN" | . $HOOK "$@"
+#   echo "###### Running Hooks ######"
+#   echo "You can skip hooks by running the commit command with '--no-verify'"
+#   for HOOK in ${HOOK_DIR}/*; do
+#     echo "$HOOK_NAME - $HOOK"
+#     echo
+#     echo "$STDIN" | . $HOOK "$@"
 
-    EXIT_CODE=$?
+#     EXIT_CODE=$?
 
-    if [ $EXIT_CODE != 0 ]; then
-      exit $EXIT_CODE
-    fi
-  done
-else
-  echo "$HOOK_DIR not found"
-  exit 1
-fi
+#     if [ $EXIT_CODE != 0 ]; then
+#       exit $EXIT_CODE
+#     fi
+#   done
+# else
+#   echo "$HOOK_DIR not found"
+#   exit 1
+# fi
 
-exit 0
-EOF
-chmod +x ${BASE}/.git/hooks/pre-commit
+# exit 0
+# EOF
+# chmod +x ${BASE}/.git/hooks/pre-commit
 
 ####################
 # No-Commit Script #
