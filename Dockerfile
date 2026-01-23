@@ -13,6 +13,7 @@ RUN git clone --quiet https://github.com/zerotier/ZeroTierOne.git /src \
 
 FROM ${BASE_IMAGE}-perl
 
+# Zerotier install
 COPY --from=zerotier_builder /src/zerotier-one /usr/sbin/
 
 RUN    apk add --no-cache --purge --clean-protected libc6-compat libstdc++ \
@@ -20,9 +21,26 @@ RUN    apk add --no-cache --purge --clean-protected libc6-compat libstdc++ \
     && ln -s /usr/sbin/zerotier-one /usr/sbin/zerotier-idtool \
     && ln -s /usr/sbin/zerotier-one /usr/sbin/zerotier-cli
 
+# Netbird install
+ENV \
+    NETBIRD_BIN="/usr/sbin/netbird" \
+    NB_USE_NETSTACK_MODE="true" \
+    NB_ENABLE_NETSTACK_LOCAL_FORWARDING="true" \
+    NB_CONFIG="/var/lib/netbird/config.json" \
+    NB_STATE_DIR="/var/lib/netbird" \
+    NB_DAEMON_ADDR="unix:///var/lib/netbird/netbird.sock" \
+    NB_LOG_FILE="console,/var/lib/netbird/client.log" \
+    NB_DISABLE_DNS="true" \
+    NB_ENTRYPOINT_SERVICE_TIMEOUT="5" \
+    NB_ENTRYPOINT_LOGIN_TIMEOUT="1"
+
+COPY --from=netbirdio/netbird:latest /usr/local/bin/netbird-entrypoint.sh /netbird-service.sh
+COPY --from=netbirdio/netbird:latest /usr/local/bin/netbird /usr/sbin/netbird
+
+# Gitweb install
 RUN    apk update \
     && apk upgrade \
-    && apk add git git-gitweb git-daemon openssh fcgiwrap perl-cgi spawn-fcgi rsync highlight \
+    && apk add git git-gitweb git-daemon openssh fcgiwrap perl-cgi spawn-fcgi rsync highlight bash \
     && rm -rf /var/cache/apk/*
 
 RUN    sed -i 's/#UseDNS no/UseDNS no/' /etc/ssh/sshd_config \

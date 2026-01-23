@@ -138,7 +138,7 @@ chown -R $USER:www-data /usr/share/gitweb
 # Start sshd
 mv $SSHD_CONF $SSHD_CONF.original
 cat << EOF > $SSHD_CONF
-#	$OpenBSD: sshd_config,v 1.104 2021/07/02 05:11:21 dtucker Exp $
+#   $OpenBSD: sshd_config,v 1.104 2021/07/02 05:11:21 dtucker Exp $
 
 # This is the sshd server system-wide configuration file.  See
 # sshd_config(5) for more information.
@@ -149,7 +149,7 @@ PubkeyAuthentication yes
 
 # The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
 # but this is overridden so installations will only check .ssh/authorized_keys
-AuthorizedKeysFile	.ssh/authorized_keys
+AuthorizedKeysFile  .ssh/authorized_keys
 PasswordAuthentication no
 AllowTcpForwarding no
 GatewayPorts no
@@ -205,14 +205,22 @@ while true; do
     # Check if zerotier is running, otherwise connect
     if zerotier-cli info; then
       if zerotier-cli listnetworks | grep $ZEROTIER_ID; then
-          echo "Still connected to $ZEROTIER_ID all good"
+        echo "Still connected to $ZEROTIER_ID all good"
       else
-          zerotier-cli join $ZEROTIER_ID
+        zerotier-cli join $ZEROTIER_ID
       fi
     else
       zerotier-one -d
       sleep 10
       zerotier-cli join $ZEROTIER_ID
+    fi
+  fi
+
+  if [ -n "${NETBIRD_KEY}" ]; then
+    if netbird status; then
+      echo "Netbird service is running correctly"
+    else
+      NB_SETUP_KEY="${NETBIRD_KEY}" /netbird-service.sh
     fi
   fi
 
