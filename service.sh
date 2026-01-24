@@ -220,7 +220,7 @@ while true; do
     if netbird status; then
       echo "Netbird service is running correctly"
     else
-      NB_SETUP_KEY="${NETBIRD_KEY}" /netbird-service.sh
+      NB_SETUP_KEY="${NETBIRD_KEY}" /netbird-service.sh &
     fi
   fi
 
